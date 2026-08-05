@@ -1,13 +1,16 @@
 ﻿using GavilAudio.Audio;
+using GavilAudio.UI;
 
-Console.WriteLine("=================================");
-Console.WriteLine("       GavilAudio v1.0");
-Console.WriteLine("=================================");
-
-AudioController audio = new AudioController();
-
-audio.SetMasterVolume(25);
+ConsoleUI ui = new();
+AudioManager audio = new();
 
 int volume = audio.GetMasterVolume();
+string currentDevice = audio.GetCurrentDeviceName();
 
-Console.WriteLine($"Current Master Volume: {volume}%");
+ui.ShowHeader();
+ui.ShowCurrentStatus(currentDevice, volume);
+
+string userInput = ui.GetVolumeInput();
+
+Console.WriteLine();
+Console.WriteLine($"You entered: {userInput}");

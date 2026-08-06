@@ -33,10 +33,8 @@ public class AudioManager
     }
     public void SetMasterVolume(int volume)
     {
-        float newVolume = (volume / 100f);
-
         volume = Math.Clamp(volume, 0, 100);
-
+        float newVolume = (volume / 100f);
         _defaultDevice.AudioEndpointVolume.MasterVolumeLevelScalar = newVolume;
     }
     public string GetCurrentDeviceName()

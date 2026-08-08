@@ -10,6 +10,7 @@ string userInput = ""; //these two lines will establish userInput and commandRes
 string message = "";
 bool running = true; //boolean value with the name "running" that is true. boolean can only be true or false.
                      //I established this to queue the program when to run or stop.
+
 while (running) //first loop, continue the loop inside while the variable "running" is "true".
 {
     int volume = audio.GetMasterVolume(); //these two lines will get info. I relocated them here at the top of the loop so it refreshed every time.
@@ -19,6 +20,7 @@ while (running) //first loop, continue the loop inside while the variable "runni
     ui.ShowCurrentStatus(currentDevice, volume);
     ui.ShowMenu();
     ui.ShowLastInteraction(userInput, message);
+
     userInput = ui.GetCommand(); //asks user to input and over-writes userInput
 
     (bool keepRunning, message) = processor.ProcessCommand(userInput); //sends the input to process command for processing and overwrites commandResult

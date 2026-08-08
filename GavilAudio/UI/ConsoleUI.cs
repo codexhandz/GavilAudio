@@ -1,4 +1,6 @@
-﻿namespace GavilAudio.UI;
+﻿using GavilAudio.Audio;
+
+namespace GavilAudio.UI;
 
 public class ConsoleUI
 {
@@ -26,6 +28,7 @@ public class ConsoleUI
         Console.WriteLine($"Commands:");
         Console.WriteLine();
         Console.WriteLine($"exit - volume - help");
+        Console.WriteLine($"  status - devices");
         Console.WriteLine();
         Console.WriteLine("---------------------------------");
         Console.WriteLine();
@@ -46,6 +49,19 @@ public class ConsoleUI
         string input = Console.ReadLine();
         return input;
     }
+    public string ShowDeviceList(List<AudioDevice> devices)
+    {
+        List<string> deviceFriendlyNameList = new List<string>();
+        foreach (AudioDevice device in devices)
+        {
+            deviceFriendlyNameList.Add(device.DeviceFriendlyName);
+        }
+        return string.Join(", ", deviceFriendlyNameList);
+    }
+    // When someone calls ShowDeviceList, it must provide an AudioDevice-type list (devices).
+    // Then it creates a new string-type list. Goes through the devices list one device at
+    // the time. Puts the DeviceFriendlyName string into DeviceFrienlyNameList. Lasty it string.Joint
+    // the names to return as one string.
 
     /// MESSAGE METHODS
     public string ShowHelp()

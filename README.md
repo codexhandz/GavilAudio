@@ -1,94 +1,85 @@
 # GavilAudio
 
-GavilAudio is a personal C# console application that allows me to interact with and control my Windows audio devices from the command line.
+A lightweight Windows console application for monitoring and controlling audio devices.
 
-This project serves two purposes:
+GavilAudio is a personal C# learning project. It was built as a way to learn software development by creating a useful application rather than following tutorials alone.
 
-- Learn C# and software development practices.
-- Build a tool that is genuinely useful for my daily workflow.
+## Features
 
-Although this project was built primarily for my own use, anyone is welcome to explore the code, suggest improvements, or use it as inspiration.
+- View the current master volume
+- Change master volume from 0–100%
+- Detect available Windows playback devices
+- Identify the default Multimedia and Communications devices
+- Change the default Multimedia device
+- Change the default Communications device
+- Refresh the audio and device information
+- Simple command-line interface
+- Input validation and error handling
 
----
+## Commands
 
-## Project Goals
+```text
+exit
+help
+volume <0-100>
+status
+refresh
+device change <multimedia|communications> <device number>
+```
 
-The primary objective of this project is education.
+### Examples
 
-Instead of simply following tutorials, I wanted to learn by designing, implementing, and improving a real application from the ground up.
+```text
+volume 50
+```
 
-Along the way I'm learning about:
+```text
+device change multimedia 2
+```
+
+## Technology
 
 - C#
-- .NET
-- Object-Oriented Programming
-- Project organization
-- Git & GitHub
-- Clean code principles
-- Windows Core Audio API
-- Software architecture and design
+- .NET 8
+- NAudio
+- Windows Core Audio
+- Windows COM / IPolicyConfig
 
----
+## Project Status
 
-## Current Features
+**Version 1 — Complete**
 
-- Display the current default playback device
-- Display the current master volume
-- Change the master volume
-- Simple command-based console interface
-- Input validation and user feedback
+The first version focuses on the core functionality of interacting with the Windows audio system.
 
----
+Future versions may explore features such as:
 
-## Planned Features
-
-The project is still under active development.
-
-Some ideas include:
-
-- Mute / Unmute
-- Volume up/down commands
-- Audio device switching
-- Configuration file
-- Improved command parser
-- Better error handling
-- Logging
+- Mute/unmute
+- Per-application audio sessions
+- Individual application volume control
+- User preferences and configuration
+- Additional UI options
 - Rainmeter integration
-- Additional quality-of-life improvements
-- UI outside console
 
----
+These are ideas for future development, not a fixed roadmap.
 
-## Technologies Used
+## Learning Project & AI Assistance
 
-- C#
-- .NET
-- Visual Studio 2022
-- Git
-- GitHub
-- Windows Core Audio API (NAudio)
-- ChatGPT
+GavilAudio is primarily a learning project, and the code is expected to contain areas that can be improved as I continue learning.
 
----
+I used **OpenAI's ChatGPT** as a development and learning assistant throughout the project. ChatGPT helped explain C# concepts, troubleshoot errors, explore architectural decisions, research Windows audio APIs, and guide me through unfamiliar concepts such as COM interop and `IPolicyConfig`.
 
-## Why a Console Application?
+The implementation, testing, decisions, and direction of the project remain my own. ChatGPT was used as a tool to help me understand and build the project.
 
-Starting with a console application allows me to focus on software development fundamentals before adding a graphical user interface.
+## Disclaimer
 
-It keeps the project simple.
+GavilAudio is **not production-grade software** and has not been extensively tested across different Windows versions or hardware configurations.
 
----
+The application interacts directly with the Windows audio system and uses the Windows `IPolicyConfig` COM interface for device switching. This is a lower-level Windows interface and may change or stop working with future Windows updates.
 
-## Learning Project
-
-This repository is intentionally public because I believe sharing work is one of the best ways to improve.
-
-You may notice code that isn't perfect, patterns that evolve over time, or decisions that get refactored as I learn more. That's expected—this repository documents my progress as a developer as much as it does the application itself.
-
----
+Use GavilAudio at your own discretion. No guarantee is made that it will work correctly on every system.
 
 ## Feedback
 
-Constructive feedback is always appreciated.
+This repository is public as part of my learning journey.
 
-If you notice a bug, have an idea for improvement, or see an opportunity to write cleaner or more efficient code, feel free to tell me. I'm always interested in learning better ways to solve problems.
+Constructive feedback is welcome, especially feedback that explains **why** something could be improved or suggests a better approach.

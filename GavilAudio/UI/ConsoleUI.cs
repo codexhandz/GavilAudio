@@ -1,26 +1,67 @@
 ﻿using GavilAudio.Audio;
+using System.Security.Cryptography.X509Certificates;
 
 namespace GavilAudio.UI;
 
 public class ConsoleUI
 {
     /// DRAWING METHODS
-    
-    public void ShowHeader()
+    public void ShowConsoleUI(int volume, List<AudioDevice> devices)
     {
+        // HEADERR
         Console.Clear();
-        Console.WriteLine("=================================");
-        Console.WriteLine("          GavilAudio");
-        Console.WriteLine("=================================");
+        Console.WriteLine(@" _______  _______  __   __  ___   ___      _______  __   __  ______   ___   _______ 
+|       ||   _   ||  | |  ||   | |   |    |   _   ||  | |  ||      | |   | |       |
+|    ___||  |_|  ||  |_|  ||   | |   |    |  |_|  ||  | |  ||  _    ||   | |   _   |
+|   | __ |       ||       ||   | |   |    |       ||  |_|  || | |   ||   | |  | |  |
+|   ||  ||       ||       ||   | |   |___ |       ||       || |_|   ||   | |  |_|  |
+|   |_| ||   _   | |     | |   | |       ||   _   ||       ||       ||   | |       |
+|_______||__| |__|  |___|  |___| |_______||__| |__||_______||______| |___| |_______|
+");
         Console.WriteLine();
-    }
-    public void ShowCurrentStatus(string currentDevice, int volume)
-    {
-        Console.WriteLine($"Current Device: {currentDevice}");
+        Console.WriteLine($"------------------------------------------------------------------------------------");
         Console.WriteLine();
-        Console.WriteLine($"Current Master Volume: {volume}%");
+        // VOLUME
+        Console.WriteLine($"Volume: {volume}%");
         Console.WriteLine();
-        Console.WriteLine("---------------------------------");
+        // DEVICES
+        Console.WriteLine($"All available devices:");
+        Console.WriteLine();
+
+        int deviceNumber = 1;
+
+        Console.WriteLine($"Devices:");
+        Console.WriteLine();
+
+        foreach (AudioDevice device in devices)
+        {
+            Console.Write($"{deviceNumber}. {device.DeviceFriendlyName} ");
+
+            if (device.IsDefaultForMultimedia)
+            {
+                Console.Write(" (Default Multimedia)");
+            }
+            if (device.IsDefaultForCommunications)
+            {
+                Console.Write(" (Default Communications)");
+            }
+            Console.WriteLine();
+            deviceNumber++;
+
+        }
+        Console.WriteLine();
+        Console.WriteLine($"------------------------------------------------------------------------------------");
+        Console.WriteLine();
+        // COMMANDS
+        Console.WriteLine(@"Commands:
+
+- exit
+- help
+- volume <0-100>
+- refresh
+- device change <multimedia OR communications> <device number>");
+        Console.WriteLine();
+        Console.WriteLine($"------------------------------------------------------------------------------------");
         Console.WriteLine();
     }
     public void ShowMenu()
@@ -38,10 +79,8 @@ public class ConsoleUI
         Console.WriteLine($"Last Command: " +  userInput);
         Console.WriteLine();
         Console.WriteLine($"Result: " + commandResult);
+        Console.WriteLine($"------------------------------------------------------------------------------------");
         Console.WriteLine();
-        Console.WriteLine("---------------------------------");
-        Console.WriteLine();
-
     }
     public string GetCommand()
     {
@@ -51,12 +90,14 @@ public class ConsoleUI
     }
     public string ShowDeviceList(List<AudioDevice> devices)
     {
-        List<string> deviceFriendlyNameList = new List<string>();
-        foreach (AudioDevice device in devices)
-        {
-            deviceFriendlyNameList.Add(device.DeviceFriendlyName);
+        int deviceNumber = 1;
+            Console.WriteLine($"Devices:");
+            Console.WriteLine();
+            foreach (AudioDevice device in devices) {
+            Console.WriteLine(deviceNumber.ToString() + ". " + device.DeviceFriendlyName);
+            deviceNumber++;
         }
-        return string.Join(", ", deviceFriendlyNameList);
+        return ("Would you like to change the default multimedia device? (Y/N)");
     }
     // When someone calls ShowDeviceList, it must provide an AudioDevice-type list (devices).
     // Then it creates a new string-type list. Goes through the devices list one device at
@@ -66,7 +107,14 @@ public class ConsoleUI
     /// MESSAGE METHODS
     public string ShowHelp()
     {
-        return "Set the master volume with \"volume <0-100>\". Example: volume 50. type \"exit\" to close application.";
+        return @"Breakdown of the commands:
+1. exit: it will close the application.
+2. help: displays current help.
+3. volume <0-100>: Set the master volume with volume <0-100>. Example: volume 50.
+4. refresh: it will refresh the whole UI, refreshing the stats
+5. Type <device change> followed by <type of audio> (multimedia OR communications)
+   followed by <device number> you will like to use from: 'All available Devices'.
+   Example: device change multimedia 2";
     }
     public string GetErrorNoCommand()
     {

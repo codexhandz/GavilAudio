@@ -2,6 +2,7 @@
 using GavilAudio.UI;
 using NAudio.CoreAudioApi;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 
 namespace GavilAudio.Commands;
 
@@ -20,7 +21,6 @@ public class CommandProcessor
     {
         if (string.IsNullOrWhiteSpace(userInput)) //check to see if userInput string is null or spaces.
         {
-            // later it needs to return _ui.ShowError001();
             return (true, _ui.GetErrorNoCommand());
         }
         else //the group below will then start identifying which command the user sent.
@@ -58,19 +58,88 @@ public class CommandProcessor
                     return (true, _ui.GetErrorInvalidVolumeNumber());
                 }
             }
-            else if (parts[0] == "status")
+            else if (parts[0] == "refresh")
             {
                 return (true, "Status Refreshed."); //doesnt really do anything other than refresh the UI and the user will see the status below header
             }
-            else if (parts[0] == "devices")
+            else if (parts[0] == "device")
             {
-                List<AudioDevice> devices = _audio.GetOutputDevices(); //"hey audio, go get me the list of devices and i will put it in this variable "devices""
-                return (true, _ui.ShowDeviceList(devices));
+                if 
+                    (
+                    parts.Length == 4 &&
+                    parts[1] == "change" &&
+                    int.TryParse(parts[3], out int deviceNumber)
+                    )
+                {
+                    if (parts[2] == "multimedia")
+                    {
+                        List<AudioDevice> devices = _audio.GetOutputDevices();
+
+                        if (deviceNumber < 1 || deviceNumber > devices.Count)
+                        {
+                            return (true, "Invalid device. Input the number corresponding to the device.");
+                        }
+
+                        int deviceIndex = deviceNumber - 1;
+
+                        AudioDevice selectedDevice = devices[deviceIndex];
+
+                        string deviceId = selectedDevice.Id;
+
+                        bool successChange = _audio.SetDefaultDevice(deviceId, AudioManager.ERole.eMultimedia);
+
+                        if (successChange)
+                        {
+                            return (true,
+                                $"Default multimedia device changed to {selectedDevice.DeviceFriendlyName}.");
+                        }
+                        else
+                        {
+                            return (true,
+                                "Unable to change the default multimedia device.");
+                        }
+                    }
+                    if (parts[2] == "communications")
+                    {
+                        List<AudioDevice> devices = _audio.GetOutputDevices();
+
+                        if (deviceNumber < 1 || deviceNumber > devices.Count)
+                        {
+                            return (true, $"Invalid device. Input the number corresponding to the device.");
+                        }
+
+                        int deviceIndex = deviceNumber - 1;
+
+                        AudioDevice selectedDevice = devices[deviceIndex];
+
+                        string deviceId = selectedDevice.Id;
+
+                        bool successChange = _audio.SetDefaultDevice(deviceId, AudioManager.ERole.eCommunications);
+
+                        if (successChange)
+                        {
+                            return (true,
+                                $"Default communications device changed to {selectedDevice.DeviceFriendlyName}.");
+                        }
+                        else
+                        {
+                            return (true,
+                                $"Unable to change the default communications device.");
+                        }
+                    }
+
+                }
+                else
+                {
+                    return (true, "Invalid device command. Please type \"help\" for more instructions.");
+                }
             }
-            else
-            {
-                return (true, _ui.GetErrorInvalidCommand());
-            }
+            //else if (parts[0] == "devices")
+            //{
+            //    List<AudioDevice> devices = _audio.GetOutputDevices(); //"hey audio, go get me the list of devices and i will put it in this variable "devices""
+            //    return (true, _ui.ShowDeviceList(devices));
+            //}
+        return (true, _ui.GetErrorInvalidCommand());
         }
     }
 }

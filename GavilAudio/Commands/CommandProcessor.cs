@@ -1,5 +1,7 @@
 ﻿using GavilAudio.Audio;
 using GavilAudio.UI;
+using System;
+using System.Collections.Generic;
 
 namespace GavilAudio.Commands;
 
@@ -118,6 +120,48 @@ public class CommandProcessor
             else
             {
                 return (true, "Invalid device command. Please type \"help\" for more instructions.");
+            }
+        }
+        else if (parts[0].ToLower() == "sessions")
+        {
+            var sessions = _audio.GetActiveAudioSessions();
+
+            if (sessions.Count == 0)
+            {
+                return (true, "No active audio sessions found.");
+            }
+            else
+            {
+                // Format the raw tuples back into text for the command result
+                List<string> formatted = new List<string>();
+                foreach (var s in sessions)
+                {
+                    formatted.Add($"{s.ProcessName} - Volume: {Math.Round(s.Volume)}%");
+                }
+                string sessionList = string.Join("\n", formatted);
+                return (true, "Active Audio Sessions:\n" + sessionList);
+            }
+        }
+        else if (parts[0] == "session")
+        {
+            if (parts.Length == 4 && parts[2] == "volume")
+            {
+                string targetApp = parts[1];
+
+                // Using int.TryParse to keep it consistent with your Master Volume logic
+                if (int.TryParse(parts[3], out int targetVolume))
+                {
+                    _audio.SetApplicationVolume(targetApp, targetVolume);
+                    return (true, $"Changed {targetApp} volume to {targetVolume}%");
+                }
+                else
+                {
+                    return (true, "Unable to change session volume. Input a valid number.");
+                }
+            }
+            else
+            {
+                return (true, "Invalid session command. Example: session chrome volume 50");
             }
         }
         return (true, _ui.GetErrorInvalidCommand());

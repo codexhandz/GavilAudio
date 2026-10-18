@@ -1,32 +1,36 @@
 ﻿using GavilAudio.Audio;
 using GavilAudio.UI;
 using GavilAudio.Commands;
-// All the folders that this program.cs has access to. Every .cs needs it unless it doesnt need to access another folder.
+using System.Collections.Generic;
 
 ConsoleUI ui = new();
-
 using AudioManager audio = new AudioManager();
-
 CommandProcessor processor = new(audio, ui);
-
-//here we create new assets.
 
 string userInput = "";
 string message = "";
+string inputBuffer = ""; // <--- NEW: Remembers what the user is currently typing across refreshes
 bool running = true;
-// Establishing variable that can be changed. userInput (from user to processor), message (from processor to program), and running (to decide then the program ends)
 
 while (running)
 {
     int volume = audio.GetMasterVolume();
     List<AudioDevice> devices = audio.GetOutputDevices();
-    ui.ShowConsoleUI(volume, devices);
-    ui.ShowLastInteraction(userInput, message);
-    // We give ConsoleUI devices info, volume info, last interaction info.
-    userInput = ui.GetCommand();
-    // We ask ConsoleUI to get new command.
+    var sessions = audio.GetActiveAudioSessions();
 
-    (bool keepRunning, message) = processor.ProcessCommand(userInput);
-    running = keepRunning;
-    // Before finishing the loop, check if we repeat it.
+    ui.ShowConsoleUI(volume, devices, sessions);
+    ui.ShowLastInteraction(userInput, message);
+
+    // Wait for up to 5 seconds. If the user types, inputBuffer captures it.
+    string? newCommand = ui.GetCommand(ref inputBuffer, 5000);
+
+    // If newCommand is NOT null, it means the user pressed Enter. Process the command.
+    // If it IS null, it means 5 seconds passed. The loop skips this block and redraws the UI from the top!
+    if (newCommand != null)
+    {
+        userInput = newCommand;
+        (bool keepRunning, string returnMessage) = processor.ProcessCommand(userInput);
+        running = keepRunning;
+        message = returnMessage;
+    }
 }

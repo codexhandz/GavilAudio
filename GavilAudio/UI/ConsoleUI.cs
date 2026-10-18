@@ -1,5 +1,4 @@
 ﻿using GavilAudio.Audio;
-using System.Security.Cryptography.X509Certificates;
 
 namespace GavilAudio.UI;
 
@@ -19,19 +18,16 @@ public class ConsoleUI
 |_______||__| |__|  |___|  |___| |_______||__| |__||_______||______| |___| |_______|
 ");
         Console.WriteLine();
-        Console.WriteLine($"------------------------------------------------------------------------------------");
+        Console.WriteLine("------------------------------------------------------------------------------------");
         Console.WriteLine();
         // VOLUME
         Console.WriteLine($"Volume: {volume}%");
         Console.WriteLine();
         // DEVICES
-        Console.WriteLine($"All available devices:");
+        Console.WriteLine("Devices:");
         Console.WriteLine();
 
         int deviceNumber = 1;
-
-        Console.WriteLine($"Devices:");
-        Console.WriteLine();
 
         foreach (AudioDevice device in devices)
         {
@@ -50,7 +46,7 @@ public class ConsoleUI
 
         }
         Console.WriteLine();
-        Console.WriteLine($"------------------------------------------------------------------------------------");
+        Console.WriteLine("------------------------------------------------------------------------------------");
         Console.WriteLine();
         // COMMANDS
         Console.WriteLine(@"Commands:
@@ -61,48 +57,24 @@ public class ConsoleUI
 - refresh
 - device change <multimedia OR communications> <device number>");
         Console.WriteLine();
-        Console.WriteLine($"------------------------------------------------------------------------------------");
-        Console.WriteLine();
-    }
-    public void ShowMenu()
-    {
-        Console.WriteLine($"Commands:");
-        Console.WriteLine();
-        Console.WriteLine($"exit - volume - help");
-        Console.WriteLine($"  status - devices");
-        Console.WriteLine();
-        Console.WriteLine("---------------------------------");
+        Console.WriteLine("------------------------------------------------------------------------------------");
         Console.WriteLine();
     }
     public void ShowLastInteraction(string userInput, string commandResult)
     {
-        Console.WriteLine($"Last Command: " +  userInput);
+        Console.WriteLine($"Last Command: {userInput}");
         Console.WriteLine();
-        Console.WriteLine($"Result: " + commandResult);
-        Console.WriteLine($"------------------------------------------------------------------------------------");
+        Console.WriteLine($"Result: {commandResult}");
+        Console.WriteLine("------------------------------------------------------------------------------------");
         Console.WriteLine();
     }
     public string GetCommand()
     {
-        Console.Write($"Enter command: ");
-        string input = Console.ReadLine();
-        return input;
+        Console.Write("Enter command: ");
+        string? input = Console.ReadLine();
+        return input ?? "";
     }
-    public string ShowDeviceList(List<AudioDevice> devices)
-    {
-        int deviceNumber = 1;
-            Console.WriteLine($"Devices:");
-            Console.WriteLine();
-            foreach (AudioDevice device in devices) {
-            Console.WriteLine(deviceNumber.ToString() + ". " + device.DeviceFriendlyName);
-            deviceNumber++;
-        }
-        return ("Would you like to change the default multimedia device? (Y/N)");
-    }
-    // When someone calls ShowDeviceList, it must provide an AudioDevice-type list (devices).
-    // Then it creates a new string-type list. Goes through the devices list one device at
-    // the time. Puts the DeviceFriendlyName string into DeviceFrienlyNameList. Lasty it string.Joint
-    // the names to return as one string.
+
 
     /// MESSAGE METHODS
     public string ShowHelp()

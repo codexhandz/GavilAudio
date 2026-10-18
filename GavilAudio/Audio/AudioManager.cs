@@ -4,98 +4,122 @@ using System.Runtime.InteropServices;
 
 namespace GavilAudio.Audio;
 
-public class AudioManager
+public class AudioManager : IDisposable
 {
     private readonly MMDeviceEnumerator _deviceEnumerator;
-    private readonly MMDevice _defaultDevice;
-    private readonly MMDevice _defaultMultimediaDevice;
-    private readonly MMDevice _defaultCommunicationsDevice;
-    // This builds the object from NAudio to change volume (_deviceEnumerator) and to identify the device(s) (_defaultDevice)
+    // This builds the object from NAudio to do audio changes and get audio info (_deviceEnumerator) and to identify the device(s) (_defaultDevice)
+
     public AudioManager()
     {
         _deviceEnumerator = new MMDeviceEnumerator();
-
-        _defaultDevice = _deviceEnumerator.GetDefaultAudioEndpoint(
-            DataFlow.Render,
-            Role.Multimedia);
-        // Erase this _defaultDevice later
-
-        _defaultMultimediaDevice = _deviceEnumerator.GetDefaultAudioEndpoint(
-            DataFlow.Render, 
-            Role.Multimedia);
-
-        _defaultCommunicationsDevice = _deviceEnumerator.GetDefaultAudioEndpoint(
-            DataFlow.Render, 
-            Role.Communications);
     }
     public int GetMasterVolume()
     {
-        float volume = _defaultDevice.AudioEndpointVolume.MasterVolumeLevelScalar;
-        return (int)(volume * 100);
+        using (MMDevice defaultDevice =
+            _deviceEnumerator.GetDefaultAudioEndpoint(
+                DataFlow.Render, 
+                Role.Multimedia))
+        {
+            //float volume =
+            //    defaultDevice.AudioEndpointVolume.MasterVolumeLevelScalar;
+
+            //return (int)(volume * 100);
+
+            using (var endpointVolume = defaultDevice.AudioEndpointVolume)
+            {
+                float volume = endpointVolume.MasterVolumeLevelScalar;
+
+                return (int)(volume * 100);
+            }
+        }
     }
+
     //This stores the volume in a float (32-bit number). Because it returns <0-1> we need to convert it to percentage in the return line.
     public List<AudioDevice> GetOutputDevices()
     {
-        string defaultMultimediaDevice = _defaultMultimediaDevice.ID;
-        string defaultCommunicationsDevice = _defaultCommunicationsDevice.ID;
+        using MMDevice defaultMultimediaDevice =
+            _deviceEnumerator.GetDefaultAudioEndpoint(
+                DataFlow.Render,
+                Role.Multimedia);
+
+        using MMDevice defaultCommunicationsDevice =
+            _deviceEnumerator.GetDefaultAudioEndpoint(
+                DataFlow.Render,
+                Role.Communications);
+
+        string defaultMultimediaDeviceId = defaultMultimediaDevice.ID;
+        string defaultCommunicationsDeviceId = defaultCommunicationsDevice.ID;
 
         List<AudioDevice> outputDeviceList = new List<AudioDevice>();
-        foreach (var device in _deviceEnumerator.EnumerateAudioEndPoints(
-            DataFlow.Render, 
+        foreach (MMDevice device in _deviceEnumerator.EnumerateAudioEndPoints(
+            DataFlow.Render,
             DeviceState.Active))
         {
-            bool isDefaultForMultimedia = false;
-            if (device.ID == defaultMultimediaDevice)
+            using (device)
             {
-                isDefaultForMultimedia = true;
+                bool isDefaultForMultimedia = false;
+                if (device.ID == defaultMultimediaDeviceId)
+                {
+                    isDefaultForMultimedia = true;
+                }
+
+                bool isDefaultForCommunications = false;
+                if (device.ID == defaultCommunicationsDeviceId)
+                {
+                    isDefaultForCommunications = true;
+                }
+
+                outputDeviceList.Add(new AudioDevice()
+                {
+                    DeviceFriendlyName = device.DeviceFriendlyName,
+                    Id = device.ID,
+                    State = device.State,
+                    IsDefaultForMultimedia = isDefaultForMultimedia,
+                    IsDefaultForCommunications = isDefaultForCommunications
+
+                });
             }
-
-            bool isDefaultForCommunications = false;
-            if (device.ID == defaultCommunicationsDevice)
-            {
-                isDefaultForCommunications = true;
-            }
-
-            outputDeviceList.Add(new AudioDevice() {
-                DeviceFriendlyName = device.DeviceFriendlyName,
-                Id = device.ID,
-                State = device.State,
-                IsDefaultForMultimedia = isDefaultForMultimedia,
-                IsDefaultForCommunications = isDefaultForCommunications
-
-            });
         }
+
         return outputDeviceList;
     }
+
     // We make a List of AudioDevice class to respond to GetOutputDevices. Then we go one object at the time for the object that have Render value and Active and add the following infor to each: DeviceFriendlyName, ID, State. Lastly, we return the list the the requestor.
     public void SetMasterVolume(int volume)
     {
         volume = Math.Clamp(volume, 0, 100);
-        float newVolume = (volume / 100f);
-        _defaultDevice.AudioEndpointVolume.MasterVolumeLevelScalar = newVolume;
-    }
-    // Clamp is to protect the program against invalid values. Then, we convert from percentage to windows value <0-1>. Lastly, we change the volume with MasterVolumeLevelScalar
-    public string GetCurrentDeviceName()
-    {
-        return _defaultDevice.DeviceFriendlyName;
+        float newVolume = volume / 100f;
+
+        using (MMDevice defaultDevice =
+            _deviceEnumerator.GetDefaultAudioEndpoint(
+                DataFlow.Render,
+                Role.Multimedia))
+        {
+            using (AudioEndpointVolume endpointVolume = defaultDevice.AudioEndpointVolume)
+            {
+                endpointVolume.MasterVolumeLevelScalar = newVolume;
+            }
+        }
     }
 
     public bool SetDefaultDevice(string deviceId, ERole role)
     {
         CPolicyConfigClient client = new CPolicyConfigClient();
-        IPolicyConfig policyConfig = (IPolicyConfig)client;
 
-        int result = policyConfig.SetDefaultEndpoint(
-            deviceId,
-            role);
-
-        if (result == 0)
+        try
         {
-            return true;
+            IPolicyConfig policyConfig = (IPolicyConfig)client;
+
+            int result = policyConfig.SetDefaultEndpoint(
+                deviceId,
+                role);
+
+            return result == 0;
+            // This return automatically return boolean value
         }
-        else
+        finally
         {
-            return false;
+            Marshal.ReleaseComObject(client);
         }
     }
 
@@ -106,6 +130,12 @@ public class AudioManager
         eCommunications = 2,
     }
 
+    public void Dispose()
+    {
+        _deviceEnumerator.Dispose();
+    }
+
+    // COM IMPORTS,  IPOLICYCONFIG, AND VTABLE
     //===========================================
     //          CLASS DEFINITION
     //===========================================

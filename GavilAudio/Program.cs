@@ -3,11 +3,9 @@ using GavilAudio.UI;
 using GavilAudio.Commands;
 // All the folders that this program.cs has access to. Every .cs needs it unless it doesnt need to access another folder.
 
-Console.SetWindowSize(85, 46);
-
 ConsoleUI ui = new();
 
-AudioManager audio = new();
+using AudioManager audio = new AudioManager();
 
 CommandProcessor processor = new(audio, ui);
 
